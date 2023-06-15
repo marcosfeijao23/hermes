@@ -13,8 +13,8 @@ defmodule Hermes do
     {:ok, resposta_2} = get("/repos/" <> user <> "/" <> repository <> "/contributors")
 
     cond do
-      resposta_1.status == 404 -> "Usuário ou Repositório inválidos. Tente novamente!"
       resposta_1.status == 200 -> montar_resposta(user, repository, resposta_1.body, resposta_2.body)
+      true -> "Usuário ou Repositório inválidos. Tente novamente!"
     end
   end
 
