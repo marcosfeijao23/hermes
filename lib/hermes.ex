@@ -2,7 +2,7 @@ defmodule Hermes do
   use Tesla
 
   plug Tesla.Middleware.BaseUrl, "https://api.github.com"
-  plug Tesla.Middleware.Headers, [{"User-Agent: marcosfeijao23", "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"}]
+  plug Tesla.Middleware.Headers, [{"User-Agent: marcosfeijao23", "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"}]
   plug Tesla.Middleware.JSON
 
   @destino "https://webhook.site/ba722517-1e4b-4b88-984a-c37b768c6a64"
