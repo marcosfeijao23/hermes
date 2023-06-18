@@ -1,8 +1,10 @@
 defmodule Hermes do
   use Tesla
+  require Logger
+  alias Hermes.Data.Response
 
   plug Tesla.Middleware.BaseUrl, "https://api.github.com"
-  plug Tesla.Middleware.Headers, [{"User-Agent: marcosfeijao23", "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"}]
+  plug Tesla.Middleware.Headers, [{"User-Agent: ", "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"}]
   plug Tesla.Middleware.JSON
 
   @destino "https://webhook.site/ba722517-1e4b-4b88-984a-c37b768c6a64"
@@ -12,56 +14,19 @@ defmodule Hermes do
 
     {:ok, resposta_2} = get("/repos/" <> user <> "/" <> repository <> "/contributors")
 
+    Logger.info("Solicitação de dados feita! Status: #{resposta_1.status}")
+
     cond do
-      resposta_1.status == 200 -> montar_resposta(user, repository, resposta_1.body, resposta_2.body)
-      true -> "Usuário ou Repositório inválidos. Tente novamente!"
+      resposta_1.status == 200 -> Response.build_response(user, repository, resposta_1.body, resposta_2.body) |> send_response()
+      resposta_1.status == 404 -> "Usuário ou Repositório inválidos. Tente novamente!"
+      true -> "Erro desconhecido. Tente novamente!"
     end
   end
 
-  defp montar_resposta(user, repository, body_1, body_2) do
-    labels = Enum.map(body_1, fn x -> get_labels(x) end)
-    authors = Enum.map(body_1, fn x -> get_authors(x) end)
-    titles = Enum.map(body_1, fn x -> Map.get(x, "title") end)
-    issues_zip = Enum.zip([titles, authors, labels])
-
-    names = Enum.map(body_2, fn x -> Map.get(x, "login") end)
-    users = Enum.map(body_2, fn x -> Map.get(x, "id") end)
-    qtd_commits = Enum.map(body_2, fn x -> Map.get(x, "contributions") end)
-    contributors_zip = Enum.zip([names, users, qtd_commits])
-
-    issues = Enum.map(issues_zip, fn x -> organizar(x, :title, :author, :labels) end)
-    contributors = Enum.map(contributors_zip, fn x -> organizar(x, :name, :user, :qtd_commits) end)
-
-    mensagem =
-    %{
-      user: user,
-      repository: repository,
-      issues: issues,
-      contributors: contributors
-    }
+  defp send_response(message) do
+#    Logger.info("Mensagem pronta para envio!")
 
     @destino
-    |> post(mensagem)
-  end
-
-  defp get_labels(data) do
-    data
-    |> Map.get("labels")
-    |> Enum.map(fn x -> Map.get(x, "name") end)
-  end
-
-  defp get_authors(data) do
-    data
-    |> Map.get("user")
-    |> Map.get("login")
-  end
-
-  defp organizar(tuple, titulo_1, titulo_2, titulo_3) do
-    list = Tuple.to_list(tuple)
-
-    %{}
-    |> Map.put(titulo_1, Enum.at(list, 0))
-    |> Map.put(titulo_2, Enum.at(list, 1))
-    |> Map.put(titulo_3, Enum.at(list, 2))
+    |> post(message)
   end
 end
