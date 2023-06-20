@@ -2,6 +2,8 @@ defmodule Hermes.Data.Response do
   require Logger
 
   def build_response(user, repository, body_1, body_2) do
+    Logger.info("Dados acessados com sucesso!")
+
     labels = Enum.map(body_1, fn x -> build_labels(x) end)
     authors = Enum.map(body_1, fn x -> build_authors(x) end)
     titles = Enum.map(body_1, fn x -> Map.get(x, "title") end)

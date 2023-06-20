@@ -4,7 +4,7 @@ defmodule Hermes do
   alias Hermes.Data.Response
 
   plug Tesla.Middleware.BaseUrl, "https://api.github.com"
-  plug Tesla.Middleware.Headers, [{"User-Agent: ", "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"}]
+  plug Tesla.Middleware.Headers, [{"User-Agent: ", ""}]
   plug Tesla.Middleware.JSON
 
   @destino "https://webhook.site/ba722517-1e4b-4b88-984a-c37b768c6a64"
@@ -24,7 +24,7 @@ defmodule Hermes do
   end
 
   defp send_response(message) do
-#    Logger.info("Mensagem pronta para envio!")
+    Logger.info("Mensagem pronta para envio!")
 
     @destino
     |> post(message)
